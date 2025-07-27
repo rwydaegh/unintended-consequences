@@ -24,7 +24,7 @@ python src/generate_plots.py
 To compile the LaTeX report (`report.tex`) into a PDF, you will need a LaTeX distribution (like MiKTeX, TeX Live, or MacTeX). Run the following command from the root directory:
 
 ```bash
-pdflatex docs/report.tex
+pdflatex -output-directory=docs docs/report.tex
 ```
 
-You may need to run the command twice to ensure all cross-references are correctly updated. The output will be `docs/report.pdf`.
+You may need to run the command twice to ensure all cross-references are correctly updated. This will place the generated `report.pdf` and all auxiliary files inside the `docs/` directory.
