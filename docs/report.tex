@@ -34,7 +34,7 @@
 
 \lstset{style=mystyle}
 
-\title{A Deep Dive into the Rebalancing Anomaly: A Quantitative Research Report}
+\title{A Quantitative Analysis of the Rebalancing Anomaly}
 \author{Quantitative Analysis}
 \date{\today}
 
@@ -46,29 +46,29 @@
 \newpage
 
 \section*{Executive Summary}
-This report presents a comprehensive quantitative analysis of the ``front-running the rebalancers'' strategy, an anomaly born from the mechanical, predictable trading of large institutional investors. Our investigation reveals a critical trade-off between absolute returns and practical viability. The original dual-signal model, while showing impressive historical performance, is rendered impractical by exceptionally high turnover and its associated transaction costs.
+This report presents a quantitative analysis of the ``front-running the rebalancers'' strategy, an anomaly resulting from the mechanical, predictable trading of large institutional investors. Our investigation reveals that the original dual-signal model, despite strong historical performance, is rendered non-viable by high turnover and its associated transaction costs.
 
-The core finding is that the strategy's true nature is that of a \textbf{``crisis alpha'' vehicle}, but the definition of "crisis" is paramount. The strategy's spectacular returns are concentrated in periods of extreme market panic, as measured by a high VIX ($\text{VIX} > 25$). During prolonged, grinding bear markets with lower volatility, such as the dot-com bust, its performance is far more subdued.
+The core finding is that the anomaly's edge is best captured not as an absolute return strategy, but as a dynamic \textbf{Hedged Equity Strategy}. This refined model captures the long-term returns of the equity market while mitigating the large drawdowns associated with major crises.
 
-A detailed analysis of turnover reveals that the original strategy's high trading frequency is primarily driven by its \texttt{Threshold} signal component. We demonstrate how successive refinements---first to a \texttt{Calendar}-only signal and finally to a VIX-filtered hybrid model---systematically reduce this turnover to manageable levels. However, this reduction comes at the cost of forgoing alpha during periods that do not meet the specific VIX-based definition of a crisis.
+The strategy's effectiveness is concentrated in periods of high market volatility, as measured by a high VIX ($\text{VIX} > 20$). During these periods, it switches from tracking the S\&P 500 to a defensive, market-neutral hedge. This provides protection against high-volatility events (e.g., 2008 and 2020) but forgoes alpha during low-volatility bear markets (e.g., the dot-com bust), where the hedge is not active.
 
-The final recommendation is nuanced. The original, high-turnover strategy is not viable. The \textbf{Hedged Equity Strategy}, which tracks the S\&P 500 in calm markets and activates a hedge in high-VIX regimes, stands out as the most practical implementation. However, it must be understood not as a universal bear market protector, but as a specialized tool against high-volatility crashes. A long-term investment horizon of 5-10 years is essential to reliably capture its benefits.
+A walk-forward analysis confirms the strategy's robustness, showing that its performance characteristics hold on out-of-sample data. The final recommendation is that the Hedged Equity Strategy is a practical, low-turnover, and robust tool for a long-term investor. However, it must be understood not as a universal bear market protection, but as a specialized tool against panic-driven market events. A long-term investment horizon of 5-10 years is necessary to capture its benefits.
 
 \vspace{1em}
 \hrulefill
 
-\section{Introduction: The Hidden Force in Financial Markets}
-In the complex machinery of modern financial markets, trillions of dollars are managed not just on sentiment or fundamental analysis, but on mechanical rules. While much research has focused on persistent forces like momentum and value, a quieter, yet powerful, driver of short-term price action has received less attention: institutional rebalancing. Every month and quarter, asset managers globally are compelled to realign their portfolios to predefined target weights. These adjustments trigger massive, predictable capital flows that create significant, short-term price pressures.
+\section{Introduction}
+In modern financial markets, trillions of dollars are managed based on mechanical rules, in addition to sentiment or fundamental analysis. While research has focused on factors like momentum and value, institutional rebalancing as a driver of short-term price action has received less attention. Every month and quarter, asset managers are compelled to realign their portfolios to predefined target weights. These adjustments trigger large, predictable capital flows that create short-term price pressures.
 
-This analysis is based on the strategy detailed in the academic paper ``The Unintended Consequences of Rebalancing.'' The core thesis is that this predictable, mechanical rebalancing---selling assets that have performed well and buying those that have underperformed to maintain a target allocation (e.g., 60\% equities, 40\% bonds)---creates temporary price pressures that can be systematically anticipated and traded. The scale of this activity is immense, with an estimated \$16 billion in annual costs borne by investors due to the market impact of these coordinated trades.
+This analysis is based on the strategy detailed in the academic paper ``The Unintended Consequences of Rebalancing.'' The core thesis is that this predictable, mechanical rebalancing---selling assets that have performed well and buying those that have underperformed to maintain a target allocation (e.g., 60\% equities, 40\% bonds)---creates temporary price pressures that can be systematically anticipated and traded. The scale of this activity is large, with an estimated \$16 billion in annual costs borne by investors due to the market impact of these coordinated trades.
 
-Our approach is to rigorously test this thesis using a Python-based backtesting environment. The initial implementation in \texttt{backtest.py} is a faithful and slightly improved version of the methodology described in the source material. A key contribution of our implementation is correctly interpreting the \texttt{Threshold} signal construction as a series of independent simulations---a subtlety missed in more simplistic interpretations found in public forums. All subsequent analyses are modularized into separate, reproducible scripts that build upon this validated core.
+Our approach is to test this thesis using a Python-based backtesting environment. The initial implementation in \texttt{backtest.py} is a version of the methodology described in the source material. Our implementation interprets the \texttt{Threshold} signal construction as a series of independent simulations, a detail not present in some interpretations. All subsequent analyses are modularized into separate, reproducible scripts that build upon this validated core.
 
 \section{Methodology and Signal Construction}
 The strategy's predictive power comes from two distinct signals designed to capture different facets of institutional rebalancing. Both are constructed by simulating the daily equity weight of a hypothetical 60/40 portfolio using the daily returns of SPY (S\&P 500 ETF) and TLT (20+ Year Treasury Bond ETF).
 
 \subsection{The \texttt{Threshold} Signal}
-The \texttt{Threshold} signal captures rebalancing that occurs when a portfolio's equity allocation deviates past a certain percentage from its 60\% target. The academic paper reveals a crucial implementation detail: the final signal is not based on one simulated portfolio, but is the average of many independent simulations, each with a different rebalancing threshold ($\delta$). This insight was critical to replicating the paper's results.
+The \texttt{Threshold} signal captures rebalancing that occurs when a portfolio's equity allocation deviates past a certain percentage from its 60\% target. The academic paper indicates an implementation detail: the final signal is not based on one simulated portfolio, but is the average of many independent simulations, each with a different rebalancing threshold ($\delta$). This was necessary to replicating the paper's results.
 
 The process, as implemented in \texttt{backtest.py}, is as follows:
 \begin{enumerate}
@@ -79,7 +79,7 @@ The process, as implemented in \texttt{backtest.py}, is as follows:
 \end{enumerate}
 
 This complex procedure is captured in the following Python code:
-\begin{lstlisting}[language=Python, caption={Definitive Threshold Signal Calculation from backtest.py}]
+\begin{lstlisting}[language=Python, caption={Threshold Signal Calculation from backtest.py}]
 # Per the paper, use delta from 0% to 2.5% with 0.1% increments.
 for delta in np.arange(0.0, 0.0251, 0.001):
     
@@ -142,10 +142,10 @@ Max Drawdown   & $-22.40$\%  & $-55.14$\%       \\
 \caption{Baseline Performance (1997--2023, Log Scale)}
 \end{figure}
 
-On the surface, the performance is impressive, with a high Sharpe ratio and significantly lower drawdown than the benchmark. However, this unscaled performance hides critical flaws related to turnover and its dynamic relationship with the market.
+The performance is strong, with a high Sharpe ratio and lower drawdown than the benchmark. However, this performance hides issues related to turnover.
 
 \subsection{Visualizing the Unfiltered Strategy's Behavior}
-To understand the strategy's character, it is instructive to visualize its relationship with the market over time. Figure \ref{fig:rolling_metrics} plots the 1-year rolling alpha and beta of the original, unfiltered strategy.
+To understand the strategy's characteristics, we visualize its relationship with the market over time. Figure \ref{fig:rolling_metrics} plots the 1-year rolling alpha and beta of the original, unfiltered strategy.
 
 \begin{figure}[htbp]
     \centering
@@ -154,10 +154,10 @@ To understand the strategy's character, it is instructive to visualize its relat
     \label{fig:rolling_metrics}
 \end{figure}
 
-The plot clearly illustrates the strategy's dual nature. The rolling beta hovers near zero for long periods, indicating no correlation to the S\&P 500. However, during market crises (e.g., 2002, 2008, 2020), the beta often turns negative, confirming its hedging properties. Correspondingly, the annualized alpha spikes dramatically during these same periods, demonstrating that the strategy's outperformance is not steady but delivered in short, intense bursts when it is needed most. This visualization confirms that even the original strategy is fundamentally a crisis vehicle.
+The plot illustrates the strategy's dual nature. The rolling beta hovers near zero for long periods, indicating no correlation to the S\&P 500. However, during market crises (e.g., 2002, 2008, 2020), the beta often turns negative, confirming its hedging properties. Correspondingly, the annualized alpha increases during these same periods, demonstrating that the strategy's outperformance is not steady but delivered in short bursts. This visualization confirms that the original strategy is fundamentally a crisis-hedging strategy.
 
 \subsection{The Turnover Problem}
-The strategy's primary weakness is its exceptionally high turnover. A detailed analysis reveals how each refinement of the strategy addresses this issue.
+The strategy's primary weakness is its high turnover. A detailed analysis reveals how each refinement of the strategy addresses this issue.
 
 \begin{table}[htbp]
 \centering
@@ -173,7 +173,7 @@ Final Hedged Equity       & 5.18  \\
 \end{tabular}
 \end{table}
 
-An annual turnover of nearly 55 for the original strategy is unsustainable for most investors. The table below quantifies the severe impact of even minor transaction costs on the original dual-signal strategy's performance.
+An annual turnover of nearly 55 for the original strategy is high for most investors. The table below quantifies the impact of transaction costs on the original dual-signal strategy's performance.
 
 \begin{table}[htbp]
 \centering
@@ -191,7 +191,7 @@ An annual turnover of nearly 55 for the original strategy is unsustainable for m
 \end{tabular}
 \end{table}
 
-At 10 bps---a realistic cost for a retail trader---the strategy's CAGR is nearly halved and its Sharpe ratio collapses, rendering it non-viable. The breakdown reveals that the daily-adjusting \texttt{Threshold} signal is the primary culprit, contributing an unweighted annualized turnover of over 70. Removing it in the Retail-Adapted version helps, but the turnover remains high. Only by introducing the VIX filter, which keeps the strategy static for long periods, is the turnover reduced to a practical level.
+At 10 bps, the strategy's CAGR is nearly halved and its Sharpe ratio decreases significantly, rendering it non-viable. The daily-adjusting \texttt{Threshold} signal is the primary contributor, with an unweighted annualized turnover of over 70. Removing it in the Retail-Adapted version helps, but the turnover remains high. Only by introducing the VIX filter, which keeps the strategy static for long periods, is the turnover reduced to a practical level.
 
 \begin{figure}[htbp]
     \centering
@@ -200,15 +200,15 @@ At 10 bps---a realistic cost for a retail trader---the strategy's CAGR is nearly
     \label{fig:turnover_analysis}
 \end{figure}
 
-Figure \ref{fig:turnover_analysis} visualizes this progression, showing the dramatic reduction in trading frequency achieved by the final Hedged Equity strategy. This reduction, however, is the source of the performance trade-offs we will now explore.
+Figure \ref{fig:turnover_analysis} visualizes this, showing the reduction in trading frequency achieved by the final Hedged Equity strategy. This reduction is the source of the performance trade-offs discussed next.
 
 \vspace{1em}
 \hrulefill
 
-\section{Deconstructing the Edge: Crisis Alpha Redefined}
+\section{Analysis of Strategy Performance}
 
 \subsection{The ``Crisis Alpha'' Nature of the Anomaly}
-A deeper analysis reveals the strategy's true nature. Its performance was analyzed in different market regimes, defined by the VIX index. A reading above 25 indicates a ``crisis'' or high-volatility period, but it is crucial to note that not all bear markets are high-VIX events.
+Further analysis reveals the strategy's nature. Its performance was analyzed in different market regimes, defined by the VIX index. A reading above 25 indicates a high-volatility period, but not all bear markets are high-VIX events.
 
 \begin{table}[htbp]
 \centering
@@ -228,9 +228,9 @@ Max Drawdown   & -32.31\% & -55.56\% \\
 \end{tabular}
 \end{table}
 
-Our analysis of historical VIX data confirms that the dot-com bust was a prolonged, grinding bear market that, for the most part, did \textbf{not} trigger the VIX > 20 threshold. Consequently, the Hedged Equity strategy remained largely invested in the S\&P 500, tracking its losses. In contrast, the 2008 Global Financial Crisis was a high-volatility event that kept the hedge active for a sustained period, leading to dramatic capital preservation.
+Our analysis of historical VIX data shows that the dot-com bust was a prolonged bear market that, for the most part, did \textbf{not} trigger the VIX > 20 threshold. Consequently, the Hedged Equity strategy remained largely invested in the S\&P 500, tracking its losses. In contrast, the 2008 Global Financial Crisis was a high-volatility event that kept the hedge active for a sustained period, leading to capital preservation.
 
-This finding is the most important in this report: the rebalancing anomaly, when filtered by VIX, is a hedge against \textbf{market panic}, not necessarily against bear markets in general.
+This finding is important: the rebalancing anomaly, when filtered by VIX, is a hedge against \textbf{market panic}, not necessarily against bear markets in general.
 
 \begin{figure}[htbp]
 \centering
@@ -239,73 +239,91 @@ This finding is the most important in this report: the rebalancing anomaly, when
 \end{figure}
 
 \subsection{Walk-Forward Validation: A Test of Robustness}
-A standard backtest can be misleading. To address this, we employ a \textbf{walk-forward analysis}, which serves as a powerful test of the strategy's \textbf{parameter stability and robustness} across different market regimes.
+To address potential overfitting, we employ a \textbf{walk-forward analysis}, which serves as a test of the strategy's \textbf{parameter stability and robustness} across different market regimes.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.8\textwidth]{plots/plot_walk_forward.png}
-\caption{Walk-Forward Equity Curve}
+\caption{Walk-Forward Equity Curve (Baseline Retail Strategy)}
 \label{fig:walk_forward}
 \end{figure}
 
-The strong performance in this test (Figure \ref{fig:walk_forward}) confirms that the strategy's edge is not a fluke driven by one or two major events, but a persistent anomaly that was effective through the dot-com bubble, the Global Financial Crisis, and the post-crisis bull market. This provides much higher confidence in its real-world viability.
+The performance in this test (Figure \ref{fig:walk_forward}) suggests that the strategy's edge is a persistent anomaly. This provides higher confidence in its viability.
 
-\section{The Final Strategy: A Practical Hedging Tool}
+\section{The Hedged Equity Strategy}
+Our research leads to a final conclusion. A pure hedging strategy creates an opportunity cost by being flat during calm markets. The proposed strategy combines market exposure during calm periods with a protective hedge when markets are stressed.
 
-\subsection{From Absolute Return to Crisis Alpha}
-The initial analysis of the rebalancing anomaly, particularly the high-turnover \texttt{Threshold} signal, suggested a high-CAGR, absolute return strategy. However, our research has systematically dismantled this notion, revealing it to be a fragile, cost-intensive approach.
+This \textbf{Hedged Equity Strategy} is defined as follows:
+\begin{itemize}
+    \item When the VIX is \textbf{below} a set threshold (e.g., 20), the strategy's return is simply the daily return of the S\&P 500 (SPY).
+    \item When the VIX is \textbf{above} the threshold, the strategy's return switches to the Calendar-Only hedge (long/short SPY vs. TLT).
+\end{itemize}
 
-The key insight is that the true, robust edge lies in the \texttt{Calendar} signal, and its value is almost exclusively realized during periods of high market stress. This pivots the goal from seeking high year-over-year returns to creating a powerful hedging instrument. The low overall CAGR of the final, VIX-filtered strategy is not a flaw; it is a feature. It represents the small "insurance premium" paid during calm markets for exceptional protection during crises.
+This approach addresses the low-CAGR issue of a pure hedge while retaining its downside protection. It is an improvement over VIX-filtered models that default to holding cash, as it reduces the opportunity cost of being out of the market.
 
-\subsection{Visualizing the Hedging Power}
-The value of the VIX-filtered strategy is best understood visually. Figure \ref{fig:vix_equity_curve} shows the strategy's cumulative returns against the S\&P 500. During long periods of market calm, it trends sideways, effectively costing nothing. However, during major market crises---such as the 2008 Global Financial Crisis and the 2020 COVID-19 crash---it generates explosive, non-correlated returns precisely when the benchmark is collapsing.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{plots/plot_vix_strategy_equity_curve.png}
-    \caption{Equity Curve of the VIX-Filtered Strategy}
-    \label{fig:vix_equity_curve}
-\end{figure}
-
-This hedging property is even more apparent when looking at the drawdown profile in Figure \ref{fig:vix_drawdowns}. While the S\&P 500 experienced a catastrophic drawdown of over 55\%, the VIX-filtered strategy's maximum drawdown was a mere 11\%. This demonstrates its profound ability to preserve capital during the worst market conditions.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{plots/plot_vix_strategy_drawdowns.png}
-    \caption{Drawdown Comparison of the VIX-Filtered Strategy}
-    \label{fig:vix_drawdowns}
-\end{figure}
-
-These plots clarify the strategy's purpose. It should not be evaluated on its standalone CAGR, but on its diversifying and protective benefits to a broader portfolio. It is a tool designed to be quiet most of the time, and spectacularly effective when it is needed most.
-
-\subsection{Walk-Forward Validation of the VIX-Filtered Strategy}
-To ensure this refined strategy is robust, we performed a walk-forward analysis on the VIX-Filtered (threshold > 20), Calendar-Only strategy. This provides the most rigorous test of its real-world viability.
+\subsection{Performance of the Hedged Equity Strategy}
+The results of this refined approach are specific. The Hedged Equity strategy essentially matches the long-term return of the S\&P 500 with slightly lower volatility. Its primary value is a reduction in tail risk during specific, high-volatility periods. This benefit is almost entirely concentrated in a few key events, such as the 2008 Global Financial Crisis. In most other periods, including the dot-com bust, the strategy provides no significant alpha and tracks the market.
 
 \begin{table}[htbp]
 \centering
-\caption{VIX-Filtered Walk-Forward Performance}
+\caption{Hedged Equity Strategy Performance (VIX > 20)}
 \begin{tabular}{lrr}
 \toprule
-\textbf{Metric} & \textbf{Strategy} & \textbf{S\&P 500 (SPY)} \\
+\textbf{Metric} & \textbf{Hedged Equity} & \textbf{S\&P 500 (SPY)} \\
 \midrule
-CAGR           & 3.25\%    & 8.61\%         \\
-Sharpe Ratio   & 0.43      & 0.45           \\
-Max Drawdown   & $-10.75$\% & $-54.75$\%      \\
-Annual Turnover & 5.18      & ---            \\
+CAGR           & 9.32\%    & 9.26\%         \\
+Volatility     & 17.49\%   & 19.61\%        \\
+Sharpe Ratio   & 0.53      & 0.47           \\
+Max Drawdown   & $-42.54$\% & $-55.14$\%      \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+The value of this strategy is illustrated visually. Figure \ref{fig:hedged_equity_curve} shows the strategy's cumulative returns against the S\&P 500. It tracks the market closely during calm periods but diverges during major events like the 2008 GFC and the 2020 COVID-19 crash. Figure \ref{fig:hedged_equity_drawdowns} shows that while the S\&P 500's drawdown exceeded 55\%, the Hedged Equity strategy's was contained to 42.5\%.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plots/plot_hedged_equity_curve.png}
+    \caption{Final Strategy: Hedged Equity vs. S\&P 500}
+    \label{fig:hedged_equity_curve}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plots/plot_hedged_equity_drawdowns.png}
+    \caption{Final Strategy: Drawdown Comparison}
+    \label{fig:hedged_equity_drawdowns}
+\end{figure}
+
+\subsection{Walk-Forward Validation of the Hedged Equity Strategy}
+To test the robustness of this refined strategy, we performed a walk-forward analysis. This provides a test of its viability by simulating how it would have performed on unseen data over time.
+
+\begin{table}[htbp]
+\centering
+\caption{Hedged Equity Walk-Forward Performance (VIX > 20)}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Metric} & \textbf{Strategy} & \textbf{S\&P 500 (SPY)} \\
+\midrule
+CAGR           & 9.63\%    & 8.61\%         \\
+Sharpe Ratio   & 0.57      & 0.45           \\
+Max Drawdown   & $-31.07$\% & $-54.75$\%      \\
+Annual Turnover & 5.20      & ---            \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The out-of-sample results confirm the strategy's specific nature. While the risk-adjusted returns remain positive, the strategy's value is dependent on the presence of infrequent, high-VIX events in the test window. The reduction in drawdown is notable but should not be misinterpreted as a general-purpose bear market hedge. The results suggest the mechanism is not random, but its applicability is limited.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.8\textwidth]{plots/plot_walk_forward_vix_filtered.png}
-\caption{VIX-Filtered Walk-Forward Equity Curve}
+\caption{Hedged Equity Walk-Forward Equity Curve}
+\label{fig:walk_forward_vix}
 \end{figure}
 
-The out-of-sample results confirm the strategy's characteristics. The low CAGR and Sharpe Ratio are expected, but the exceptionally low drawdown and volatility validate its role as a powerful hedging instrument. The strategy works as intended, even in a rigorous, out-of-sample environment.
-
 \subsection{Monte Carlo Simulation: Understanding the Risk}
-Even a robust strategy can have long periods of underperformance. To understand the range of potential outcomes and the importance of a long investment horizon, we use a \textbf{Monte Carlo simulation}. This technique involves creating thousands of possible future return paths by randomly sampling from the strategy's historical daily returns. It helps answer the question: ``If I started this strategy at a random time, what would my experience be like over 1, 5, or 10 years?''
+A strategy can have long periods of underperformance. To understand the range of potential outcomes and the importance of a long investment horizon, we use a \textbf{Monte Carlo simulation}. This technique involves creating thousands of possible future return paths by randomly sampling from the strategy's historical daily returns.
 
 \begin{table}[htbp]
 \centering
@@ -329,56 +347,16 @@ Even a robust strategy can have long periods of underperformance. To understand 
 \caption{Monte Carlo CAGR Distribution (10-Year Horizon)}
 \end{figure}
 
-The simulation provides a sobering but essential perspective. Over a short 1-year horizon, there is a nearly 47\% chance of underperforming the market. The probability of loss is also significant. Only by extending the investment horizon to \textbf{5--10 years} does the probability of a negative outcome become negligible and the probability of outperformance become more favorable. This analysis underscores that capturing the benefits of the crisis alpha requires patience and a long-term commitment.
+The simulation provides a useful perspective. Over a 1-year horizon, there is a 47\% chance of underperforming the market. The probability of loss is also non-trivial. Only by extending the investment horizon to \textbf{5--10 years} is the probability of a negative outcome reduced and the probability of outperformance becomes higher. This analysis suggests that capturing the benefits of this strategy requires a long-term commitment.
 
 \vspace{1em}
 \hrulefill
 
-\section{The Ultimate Refinement: The Hedged Equity Strategy}
-Our research journey has led us to a final, powerful conclusion. While the VIX-filtered hedge is an effective tool for capital preservation, its periods of inactivity create an opportunity cost by missing out on the market's natural upward drift. The ultimate strategy, therefore, is one that combines the best of both worlds: capturing market returns during calm periods and seamlessly switching to the protective hedge when markets are stressed.
+\section{Conclusion}
+The ``rebalancing anomaly'' is a historically persistent phenomenon, but its practical application has challenges. The original dual-signal model is non-viable due to high turnover.
 
-This \textbf{Hedged Equity Strategy} is defined as follows:
-\begin{itemize}
-    \item When the VIX is \textbf{below} a set threshold (e.g., 20), the strategy's return is simply the daily return of the S\&P 500 (SPY).
-    \item When the VIX is \textbf{above} the threshold, the strategy's return switches to the Calendar-Only hedge (long/short SPY vs. TLT).
-\end{itemize}
+Our refinement leads to the \textbf{Hedged Equity Strategy}, but its benefits are specific. The strategy is best understood as a low-turnover method for capturing market beta with a built-in, specific hedge against volatility panics. Most of its historical alpha was generated during the 2008 crisis. Outside of such infrequent events, it offers little advantage over simply holding the S\&P 500, and does not protect against prolonged bear markets like the dot-com bust.
 
-This approach solves the low-CAGR problem of the pure hedge while retaining its most critical benefit: downside protection. This is a crucial improvement over simpler VIX-filtered models that default to holding cash, as it eliminates the opportunity cost of being out of the market during its natural upward drift in calm periods.
-
-\begin{table}[htbp]
-\centering
-\caption{Hedged Equity Strategy Performance (VIX > 20)}
-\begin{tabular}{lrr}
-\toprule
-\textbf{Metric} & \textbf{Hedged Equity} & \textbf{S\&P 500 (SPY)} \\
-\midrule
-CAGR           & 9.32\%    & 9.26\%         \\
-Volatility     & 17.49\%   & 19.61\%        \\
-Sharpe Ratio   & 0.53      & 0.47           \\
-Max Drawdown   & $-42.54$\% & $-55.14$\%      \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The results are exceptional. The Hedged Equity strategy matches the long-term return of the S\&P 500 while exhibiting lower volatility and a higher Sharpe Ratio. Most importantly, it significantly reduces the maximum drawdown from -55.14\% to -42.54\%, demonstrating the powerful effect of the crisis alpha hedge.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{plots/plot_hedged_equity_curve.png}
-    \caption{Final Strategy: Hedged Equity vs. S\&P 500}
-    \label{fig:hedged_equity_curve}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{plots/plot_hedged_equity_drawdowns.png}
-    \caption{Final Strategy: Drawdown Comparison}
-    \label{fig:hedged_equity_drawdowns}
-\end{figure}
-
-\section{Final Conclusion}
-The ``rebalancing anomaly'' is a real, historically persistent phenomenon, but its practical application requires a nuanced understanding of its trade-offs. The original dual-signal model, while academically interesting, is non-viable due to its extremely high turnover.
-
-Through a process of systematic refinement, we arrive at the \textbf{Hedged Equity Strategy}. This final model is not a simple absolute return strategy but a sophisticated hedging tool. It intentionally forgoes alpha during low-volatility bear markets (like the dot-com bust) to provide targeted protection against high-volatility crashes (like 2008 and 2020). This refined model achieves a compelling outcome: it captures the long-term returns of the equity market while significantly mitigating the catastrophic drawdowns associated with major crises. It is a practical, low-turnover, and robust strategy suitable for a long-term, patient investor who understands its specific role as a panic hedge.
+The conclusion is that the Hedged Equity strategy is not a source of consistent alpha but a tool for tail-risk hedging. Its value is dependent on the occurrence of infrequent, panic-driven events. An investor must accept long periods of market-tracking performance for the potential of mitigation during these events. It is a tool for a long-term investor who understands these limitations.
 
 \end{document}
