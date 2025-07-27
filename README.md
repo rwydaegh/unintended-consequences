@@ -11,6 +11,20 @@ This repository contains the analysis for the paper "The Unintended Consequence 
 
 ## How to Run
 
+### Environment Setup
+
+This project uses Poetry for dependency management. To set up the virtual environment and install the required packages, run:
+
+```bash
+poetry install
+```
+
+To activate the virtual environment, run:
+
+```bash
+poetry shell
+```
+
 ### Analysis & Plots
 
 To run the main analysis and generate all plots, execute the following command from the root directory:
