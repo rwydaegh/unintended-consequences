@@ -1,0 +1,9 @@
+import os
+os.system("python src/visualization/plots.py")
+os.system("python src/visualization/ma_strategy.py")
+os.system("python src/visualization/imbalance.py")
+os.system("python src/visualization/pnl_by_regime.py")
+os.system("python src/visualization/position_vs_vix.py")
+os.system("python src/visualization/position.py")
+os.system("python src/visualization/signal_contribution.py")
+os.system("python src/visualization/interactive_ma_strategy.py")

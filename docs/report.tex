@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[a4paper, margin=1in]{geometry}
 \usepackage{graphicx}
+\graphicspath{{../plots/}{../plots/other/}{../plots/hedged_equity/}{../plots/ma_strategy/}{../plots/walk_forward/}{../plots/sensitivity/}}
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{listings}
@@ -138,18 +139,18 @@ Max Drawdown   & $-22.40$\%  & $-55.14$\%       \\
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\textwidth]{plots/performance.png}
+\includegraphics[width=0.8\textwidth]{performance.png}
 \caption{Baseline Performance (1997--2023, Log Scale)}
 \end{figure}
 
 The performance is strong, with a high Sharpe ratio and lower drawdown than the benchmark. However, this performance hides issues related to turnover.
 
 \subsection{Visualizing the Unfiltered Strategy's Behavior}
-To understand the strategy's characteristics, we visualize its relationship with the market over time. Figure \ref{fig:rolling_metrics} plots the 1-year rolling alpha and beta of the original, unfiltered strategy.
+To understand the strategy's characteristics, we visualize its relationship with the market over time. Figure~\ref{fig:rolling_metrics} plots the 1-year rolling alpha and beta of the original, unfiltered strategy.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{plots/plot_rolling_metrics.png}
+    \includegraphics[width=0.8\textwidth]{plot_rolling_metrics.png}
     \caption{Rolling Alpha and Beta of the Unfiltered Dual-Signal Strategy}
     \label{fig:rolling_metrics}
 \end{figure}
@@ -195,12 +196,12 @@ At 10 bps, the strategy's CAGR is nearly halved and its Sharpe ratio decreases s
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{plots/plot_turnover_analysis.png}
+    \includegraphics[width=0.8\textwidth]{plot_turnover_analysis.png}
     \caption{Turnover Comparison of Strategy Variations (1-Year Rolling Average)}
     \label{fig:turnover_analysis}
 \end{figure}
 
-Figure \ref{fig:turnover_analysis} visualizes this, showing the reduction in trading frequency achieved by the final Hedged Equity strategy. This reduction is the source of the performance trade-offs discussed next.
+Figure~\ref{fig:turnover_analysis} visualizes this, showing the reduction in trading frequency achieved by the final Hedged Equity strategy. This reduction is the source of the performance trade-offs discussed next.
 
 \vspace{1em}
 \hrulefill
@@ -234,7 +235,7 @@ This finding is important: the rebalancing anomaly, when filtered by VIX, is a h
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\textwidth]{plots/plot_crisis_analysis.png}
+\includegraphics[width=0.8\textwidth]{plot_crisis_analysis.png}
 \caption{Strategy Performance in Different Market Regimes}
 \end{figure}
 
@@ -243,12 +244,12 @@ To address potential overfitting, we employ a \textbf{walk-forward analysis}, wh
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\textwidth]{plots/plot_walk_forward.png}
+\includegraphics[width=0.8\textwidth]{plot_walk_forward.png}
 \caption{Walk-Forward Equity Curve (Baseline Retail Strategy)}
 \label{fig:walk_forward}
 \end{figure}
 
-The performance in this test (Figure \ref{fig:walk_forward}) suggests that the strategy's edge is a persistent anomaly. This provides higher confidence in its viability.
+The performance in this test (Figure~\ref{fig:walk_forward}) suggests that the strategy's edge is a persistent anomaly. This provides higher confidence in its viability.
 
 \section{The Hedged Equity Strategy}
 Our research leads to a final conclusion. A pure hedging strategy creates an opportunity cost by being flat during calm markets. The proposed strategy combines market exposure during calm periods with a protective hedge when markets are stressed.
@@ -279,18 +280,18 @@ Max Drawdown   & $-42.54$\% & $-55.14$\%      \\
 \end{tabular}
 \end{table}
 
-The value of this strategy is illustrated visually. Figure \ref{fig:hedged_equity_curve} shows the strategy's cumulative returns against the S\&P 500. It tracks the market closely during calm periods but diverges during major events like the 2008 GFC and the 2020 COVID-19 crash. Figure \ref{fig:hedged_equity_drawdowns} shows that while the S\&P 500's drawdown exceeded 55\%, the Hedged Equity strategy's was contained to 42.5\%.
+The value of this strategy is illustrated visually. Figure~\ref{fig:hedged_equity_curve} shows the strategy's cumulative returns against the S\&P 500. It tracks the market closely during calm periods but diverges during major events like the 2008 GFC and the 2020 COVID-19 crash. Figure~\ref{fig:hedged_equity_drawdowns} shows that while the S\&P 500's drawdown exceeded 55\%, the Hedged Equity strategy's was contained to 42.5\%.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{plots/plot_hedged_equity_curve.png}
+    \includegraphics[width=0.8\textwidth]{plot_hedged_equity_curve.png}
     \caption{Final Strategy: Hedged Equity vs. S\&P 500}
     \label{fig:hedged_equity_curve}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{plots/plot_hedged_equity_drawdowns.png}
+    \includegraphics[width=0.8\textwidth]{plot_hedged_equity_drawdowns.png}
     \caption{Final Strategy: Drawdown Comparison}
     \label{fig:hedged_equity_drawdowns}
 \end{figure}
@@ -317,12 +318,54 @@ The out-of-sample results confirm the strategy's specific nature. While the risk
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\textwidth]{plots/plot_walk_forward_vix_filtered.png}
+\includegraphics[width=0.8\textwidth]{plot_walk_forward_vix_filtered.png}
 \caption{Hedged Equity Walk-Forward Equity Curve}
 \label{fig:walk_forward_vix}
 \end{figure}
 
+\subsection{A Variation: The 200-Day Moving Average Filter}
+\label{sec:ma_filter}
+As a variation on the VIX-filtered approach, we explored using a simple 200-day moving average (MA) of the S\&P 500 as an alternative trigger for the hedge. The logic is that the hedge is most valuable during sustained downturns, which a 200-day MA is well-suited to identify.
+
+The strategy is defined as follows:
+\begin{itemize}
+    \item When the S\&P 500 is \textbf{above} its 200-day MA, the strategy's return is the daily return of the S\&P 500 (SPY).
+    \item When the S\&P 500 is \textbf{below} its 200-day MA, the strategy's return switches to the Calendar-Only hedge.
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\caption{Hedged Equity Strategy Performance (200-Day MA Filter)}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Metric} & \textbf{MA-Filtered Strategy} & \textbf{S\&P 500 (SPY)} \\
+\midrule
+CAGR           & 12.60\%    & 7.14\%         \\
+Volatility     & 15.73\%   & 19.94\%        \\
+Sharpe Ratio   & 0.80      & 0.36           \\
+Max Drawdown   & -26.77\% & -55.14\%      \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plot_ma_strategy_equity_curve.png}
+    \caption{MA-Filtered Strategy vs. S\&P 500}
+    \label{fig:ma_filtered_equity_curve}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plot_ma_strategy_drawdowns.png}
+    \caption{MA-Filtered Strategy: Drawdown Comparison}
+    \label{fig:ma_filtered_drawdowns}
+\end{figure}
+
+The results of this variation are compelling. The MA-filtered strategy outperforms both the S\&P 500 and the VIX-filtered strategy on a risk-adjusted basis, with a higher Sharpe ratio and a lower maximum drawdown. This suggests that the 200-day moving average is a more effective filter for activating the hedge, as it is less prone to the short-term spikes that can affect the VIX.
+
 \subsection{Monte Carlo Simulation: Understanding the Risk}
+\label{sec:monte_carlo}
 A strategy can have long periods of underperformance. To understand the range of potential outcomes and the importance of a long investment horizon, we use a \textbf{Monte Carlo simulation}. This technique involves creating thousands of possible future return paths by randomly sampling from the strategy's historical daily returns.
 
 \begin{table}[htbp]
@@ -343,7 +386,7 @@ A strategy can have long periods of underperformance. To understand the range of
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\textwidth]{plots/plot_monte_carlo.png}
+\includegraphics[width=0.8\textwidth]{plot_monte_carlo.png}
 \caption{Monte Carlo CAGR Distribution (10-Year Horizon)}
 \end{figure}
 
